@@ -1,0 +1,34 @@
+
+SELECT DISTINCT
+    CONCAT('SELECT ',AB.ndxcollist,' FROM ',AB.db,'.',AB.tb,
+    ' ORDER BY ',AB.ndxcollist,';') as SelectQueryToLoadCache
+    FROM
+
+(SELECT
+AA.engine, AA.table_schema as db,  AA.table_name as tb,
+AA.index_name, GROUP_CONCAT(AA.column_name  ORDER BY AA.seq_in_index) as ndxcollist
+FROM (
+
+
+SELECT
+B.engine,A.table_schema,A.table_name,
+A.index_name,A.column_name,A.seq_in_index
+FROM
+information_schema.statistics  A  ,
+ (
+      SELECT engine,table_schema,table_name
+      FROM information_schema.tables WHERE
+      engine='InnoDB'
+  ) B
+
+WHERE B.table_schema NOT IN ('information_schema','mysql')
+
+and A.table_schema = B.table_schema  and A.table_name = B.table_name
+
+ORDER BY A.table_schema,A.table_name,A.index_name,A.seq_in_index
+
+
+)  AA   GROUP BY AA.table_schema,AA.table_name,AA.index_name
+
+
+)   AB     ORDER BY AB.db,AB.tb
