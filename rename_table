@@ -1,0 +1,19 @@
+如何在线上互换2个表的名称?
+
+我们想要的是同时完成表名对调，如果是先后的对掉，可能会导致有些数据写入失败，那怎么办？
+
+其实也不难，从MySQL手册里就能找到方法，
+那就是：同时锁定2个表，不允许写入，然后对调表名。
+
+我们通常只锁一个表，那么同时锁两个表应该怎么做呢，可以用下面的方法：
+LOCK TABLES t1 WRITE, t2 WRITE;
+ALTER TABLE t1 RENAME TO t3;
+ALTER TABLE t2 RENAME TO t1;
+ALTER TABLE t3 RENAME TO t2;
+UNLOCK TABLES;
+
+看到了吧，其实很简单，两个表同时加表级写锁，然后用ALTER语法改名就可以了。
+
+
+注意是同时rename 2个表。且要保证数据安全。
+
